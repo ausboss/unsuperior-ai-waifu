@@ -11,7 +11,7 @@
     "engine": "",
     "deaf": false,
     "mute": false,
-    "tts-engine": "azure",
+    "tts-engine": "",
     "sr-engine": "text",
     "stt-engine": "text",
     "stt_language": "",

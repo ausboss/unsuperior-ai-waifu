@@ -65,12 +65,12 @@ const voice = config.voice;
 const openAIKey = config.openai;
 const usawServerURL = config.usaws;
 const AIPossible = openAIKey || usawServerURL;
-if (!AIPossible) {
-    addError("ERROR: No OpenAI API Key and no USAW server available. Either is required for her to think.");
-}
-if (openAIKey && usawServerURL) {
-    addWarning("WARNING: OpenAI API key and USAW server given. Defaulting to USAW");
-}
+// if (!AIPossible) {
+//     addError("ERROR: No OpenAI API Key and no USAW server available. Either is required for her to think.");
+// }
+// if (openAIKey && usawServerURL) {
+//     addWarning("WARNING: OpenAI API key and USAW server given. Defaulting to USAW");
+// }
 
 
 
@@ -129,14 +129,14 @@ if (voiceEngine != "azure" && sttAzureLang != "en-US") {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-var ai;
-if (usawServerURL) {
-    ai = new USAWServerAI(usawServerURL);
-} else if (openAIKey) {
-    ai = new APIAbuserAI(openAIKey, promptBase);
-} else {
-    ai = new AI();
-}
+// var ai;
+// if (usawServerURL) {
+//     ai = new USAWServerAI(usawServerURL);
+// } else if (openAIKey) {
+//     ai = new APIAbuserAI(openAIKey, promptBase);
+// } else {
+//     ai = new AI();
+// }
 
 var ttsFactory;
 if (voiceEngine == "azure") {
