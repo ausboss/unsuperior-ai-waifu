@@ -6,8 +6,8 @@ function createWindow() {
     frame: false,
     fullscreen: false,
     transparent: true,
-    width: 1500,
-    height: 1500,
+    width: 700,
+    height: 700,
     movable: true, // enable moving the window
     resizable: true, // disable resizing the window
     webPreferences: {
@@ -20,9 +20,10 @@ function createWindow() {
   win.setIgnoreMouseEvents(false)
 
   win.setAlwaysOnTop(true, 'screen');
-  
+  win.setMinimizable(false)
+
   // Open DevTools - remove this for production
-  win.webContents.openDevTools()
+ win.webContents.openDevTools()
 
   // Make the window draggable
   let isDragging = false

@@ -26,15 +26,24 @@
             <li>Tap the textbox at the bottom to speak with her.</li>
         </ul>
         <button id="start-button" type="button">Yessir</button>
-        <div id="warning"
-    </div>-->
-    </div>
-    <canvas id=canvas class='draggable'></canvas>    <div class="ui">
-</div> 
+        <div id="warning">
+
+        </div> 
                 <div id="nametag" class="nametag">Name</div>
         <div class="polkadot-background textbox ui-body" id="transcription">
             Tap to talk...
         </div>
+    </div>-->
+    
+				<div class='hidden'>
+                    <div id="nametag" class="nametag">Name</div>
+        <div class="polkadot-background textbox ui-body" id="transcription">
+            Tap to talk...
+        </div>
+    </div>
+    </div>
+    <canvas id=canvas class='draggable'></canvas>    <div class="ui">
+
     <script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.2/dist/browser/pixi.min.js"></script>
@@ -45,8 +54,15 @@
 </body>
 
 <style>
-.draggable {
-    -webkit-app-region: drag;
-}</style>
+    
+.hidden {
+visibility: hidden;
+}
+.hidden:hover {
+visibility: visible;
+transition: ease-in-out 0.5s;
+}
+	
+</style>
 
 </html>
