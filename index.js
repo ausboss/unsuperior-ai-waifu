@@ -1,13 +1,15 @@
 const { app, BrowserWindow } = require('electron')
 
+
 function createWindow() {
   const win = new BrowserWindow({
     frame: false,
-    fullscreen: true,
+    fullscreen: false,
     transparent: true,
-    // width: 500,
-    // height: 500,
+    width: 1500,
+    height: 1500,
     movable: true, // enable moving the window
+    resizable: false, // disable resizing the window
     webPreferences: {
       nodeIntegration: true
     }

@@ -1,34 +1,41 @@
 import { DumbMemoryModule } from "./memory.js"
 
-function openAIAPICompletionReq(key, prompt, callback) {
+
+const config = await fetch('config.json').then(response => response.json());
+const endPoint = config.endpoint;
+
+function koboldAPICompletionReq(prompt, callback) {
     $.ajax({
-        url: 'https://api.openai.com/v1/completions',
-        type: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + key
-        },
-        data: JSON.stringify({
-            'model': 'text-davinci-003',
-            'prompt': prompt,
-            'temperature': 0.8,
-            'max_tokens': 70
-        }),
-        success: function (data) {
-            callback(data.choices[0].text, null);
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            console.error(XMLHttpRequest);
-            var err = `Error code ${XMLHttpRequest.status}.`;
-            if (XMLHttpRequest.status == 401) {
-                err += " It seems like your API key doesn't work. Was it entered correctly?"
-            } else if (XMLHttpRequest.status == 429) {
-                err += " You're talking to her too much. OpenAI doesn't like that. Slow down."
-            }
-            callback(null, err);
-        },
+      url: endPoint + "/api/v1/generate",
+      type: 'POST',
+      contentType: 'application/json', // Add content type
+      data: JSON.stringify({
+        'prompt': prompt,
+        'use_story': false,
+        'use_memory': false,
+        'use_authors_note': false,
+        'use_world_info': false,
+        'max_context_length': 1818,
+        'max_length': 150,
+        'rep_pen': 1.03,
+        'sampler_order': [6, 0, 1, 2, 3, 4, 5],
+      }),
+      success: function (response) { // Update the parameter name
+        callback(response.results[0].text, null);
+      },
+      error: function (XMLHttpRequest, textStatus, errorThrown) {
+        console.error(XMLHttpRequest);
+        var err = `Error code ${XMLHttpRequest.status}.`;
+        if (XMLHttpRequest.status == 401) {
+          err += " It seems like your API key doesn't work. Was it entered correctly?";
+        } else if (XMLHttpRequest.status == 429) {
+          err += " You're talking to her too much. OpenAI doesn't like that. Slow down.";
+        }
+        callback(null, err);
+      },
     });
-}
+  }
+  
 
 function emotionAnalysis(key, text, callback) {
     var prompt = `
@@ -100,7 +107,7 @@ class APIAbuserAI extends AI {
         let APIKey = this.#openaiAPIKey;
         var memory = this.#memory;
         var fullTextGenerationPrompt = `${memory.buildPrompt()}\nMe: ${userPrompt}\nYou: `;
-        openAIAPICompletionReq(APIKey, fullTextGenerationPrompt,
+        koboldAPICompletionReq(fullTextGenerationPrompt,
             function (response, err) {
                 if (err != null) {
                     console.error(err);

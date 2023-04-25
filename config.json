@@ -1,5 +1,5 @@
 {
-    "model": "",
+    "model": "player_unit_00003",
     "username": "AusBoss",
     "waifuname": "Tensor",
     "prompt": "Your custom prompt here...",
@@ -8,11 +8,13 @@
     "usaws": "",
     "speech_key": "",
     "speech_region": "",
-    "engine": "native",
+    "engine": "",
     "deaf": false,
     "mute": false,
-    "tts-engine": "",
-    "sr-engine": "",
-    "stt_language": "en-US"
+    "tts-engine": "azure",
+    "sr-engine": "text",
+    "stt-engine": "text",
+    "stt_language": "",
+    "endpoint": "https://nashville-specifications-cause-worried.trycloudflare.com/"
   }
   

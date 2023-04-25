@@ -1,3 +1,4 @@
+
 import * as helpers from "./helpers.js";
 import { APIAbuserAI, USAWServerAI } from "./ai.js";
 import { TextToSpeechSynthesizerFactory } from "./speech.js";
@@ -12,6 +13,8 @@ import { SpeechToTextRecognizerFactory } from "./speechrecognizer.js";
 const startListeningAudioElement = new Audio("static/media/startListening.mp3");
 const pokeAudioElement = new Audio("static/media/poke.mp3");
 const bonkAudioElement = new Audio("static/media/bonk.mp3");
+
+
 
 function addMessage(text, clas) {
     var ul = document.getElementById("warning");
@@ -62,12 +65,14 @@ const voice = config.voice;
 const openAIKey = config.openai;
 const usawServerURL = config.usaws;
 const AIPossible = openAIKey || usawServerURL;
-// if (!AIPossible) {
-//     addError("ERROR: No OpenAI API Key and no USAW server available. Either is required for her to think.");
-// }
-// if (openAIKey && usawServerURL) {
-//     addWarning("WARNING: OpenAI API key and USAW server given. Defaulting to USAW");
-// }
+if (!AIPossible) {
+    addError("ERROR: No OpenAI API Key and no USAW server available. Either is required for her to think.");
+}
+if (openAIKey && usawServerURL) {
+    addWarning("WARNING: OpenAI API key and USAW server given. Defaulting to USAW");
+}
+
+
 
 const subscriptionKey = config.speech_key;
 const serviceRegion = config.speech_region;
@@ -102,7 +107,8 @@ if (!SPEECH_POSSIBLE) {
 
 const NATIVE_SPEECH_RECOGNITION_POSSIBLE = "webkitSpeechRecognition" in window;
 const SPEECH_RECOGNITION_POSSIBLE = NATIVE_SPEECH_RECOGNITION_POSSIBLE || AZURE_POSSIBLE;
-var speechRecognitionEngine = config["stt-engine"] || config["engine"] || "native";
+var speechRecognitionEngine = config["stt-engine"];
+
 if (!SPEECH_RECOGNITION_POSSIBLE) {
     addWarning("WARNING: Speech recognition not available. She is switching to text input mode.");
     speechRecognitionEngine = "text";
@@ -114,6 +120,8 @@ if (!SPEECH_RECOGNITION_POSSIBLE) {
     speechRecognitionEngine = "text";
 }
 
+
+
 const sttAzureLang = config["stt-azure-lang"] || "en-US";
 if (voiceEngine != "azure" && sttAzureLang != "en-US") {
     addWarning("WARNING: Using different languages for speech-to-text is only available with the Azure engine. Defaulting to english.");
@@ -121,14 +129,14 @@ if (voiceEngine != "azure" && sttAzureLang != "en-US") {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-// var ai;
-// if (usawServerURL) {
-//     ai = new USAWServerAI(usawServerURL);
-// } else if (openAIKey) {
-//     ai = new APIAbuserAI(openAIKey, promptBase);
-// } else {
-//     ai = new AI();
-// }
+var ai;
+if (usawServerURL) {
+    ai = new USAWServerAI(usawServerURL);
+} else if (openAIKey) {
+    ai = new APIAbuserAI(openAIKey, promptBase);
+} else {
+    ai = new AI();
+}
 
 var ttsFactory;
 if (voiceEngine == "azure") {

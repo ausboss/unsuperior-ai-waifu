@@ -9,7 +9,7 @@
   "scripts": {
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
-},
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ausboss/unsuperior-ai-waifu.git"
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/ausboss/unsuperior-ai-waifu#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "electron": "^24.1.2"
   }
 }
