@@ -23,5 +23,8 @@
   "dependencies": {
     "cors": "^2.8.5",
     "electron": "^24.1.2"
+  },
+  "devDependencies": {
+    "electron-reload": "^2.0.0-alpha.1"
   }
 }
