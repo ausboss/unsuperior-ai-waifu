@@ -20,7 +20,7 @@ function createWindow() {
 
     webPreferences: {
       nodeIntegration: true,
-      devTools: false
+      devTools: true
     }
   })
 
@@ -37,7 +37,7 @@ const textbox = new BrowserWindow({
   spellcheck: false,
   webPreferences: {
     nodeIntegration: true,
-    devTools: false
+    devTools: true
   }})
 
   textbox.loadURL(`file://${__dirname}/textbox.html`)
@@ -61,7 +61,7 @@ const textbox = new BrowserWindow({
   win.setMinimizable(false)
 
   // Open DevTools - remove this for production
- // win.webContents.openDevTools()
+ win.webContents.toggleDevTools();
 
   // Make the window draggable
   let isDragging = true

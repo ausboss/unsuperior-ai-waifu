@@ -1,6 +1,5 @@
-
+import { APIAbuserAI, Chatbot, DumbMemoryModule, emotionAnalysis, AI} from "./ai.js";
 import * as helpers from "./helpers.js";
-import { APIAbuserAI, USAWServerAI } from "./ai.js";
 import { TextToSpeechSynthesizerFactory } from "./speech.js";
 import { SpeechToTextRecognizerFactory } from "./speechrecognizer.js";
 
@@ -129,15 +128,16 @@ if (voiceEngine != "azure" && sttAzureLang != "en-US") {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-// var ai;
-// if (usawServerURL) {
-//     ai = new USAWServerAI(usawServerURL);
-// } else if (openAIKey) {
-//     ai = new APIAbuserAI(openAIKey, promptBase);
-// } else {
-//     ai = new AI();
-// }
+var ai;
+if (usawServerURL) {
+    ai = new USAWServerAI(usawServerURL);
+} else if (openAIKey) {
+    ai = new APIAbuserAI(openAIKey, promptBase);
+} else {
+    ai = new AI();
+}
 
+ai = new APIAbuserAI(openAIKey, promptBase);
 var ttsFactory;
 if (voiceEngine == "azure") {
     ttsFactory = TextToSpeechSynthesizerFactory.Azure(model, "en-US", voice, subscriptionKey, serviceRegion);
@@ -281,33 +281,51 @@ function onInteract(model, getInteraction) {
         // resizeBackground();
         resizeWaifu();
     };
+    $transcription.on('keydown', function (event) {
+        if (event.key === 'Enter') {
+        //   event.preventDefault(); // Prevents the default behavior of the Enter key
+          $transcription.click();
+        }
+      });
+      
 
-    $transcription.click(function () {
+      $transcription.on('keydown', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault(); // Prevents the default behavior of the Enter key
+          console.log('Enter key pressed'); // Log when the Enter key is pressed
+          $transcription.click();
+        }
+      });
+      
+      $transcription.click(function () {
+        console.log('Transcription click event triggered'); // Log when the click event is triggered
         onInteract(model, (callback) => {
-            if(speechRecognitionEngine != "text") {
-                startListeningAudioElement.play();
-                setUI(username, "Listening...");
+          if (speechRecognitionEngine != 'text') {
+            startListeningAudioElement.play();
+            setUI(username, 'Listening...');
+          }
+          $name_label.text(username + ':');
+          let recognizer = sttFactory.build();
+      
+          recognizer.recognize(
+            (partialResult) => {
+              setUI(username, partialResult);
+            },
+            (result, error) => {
+              if (result) {
+                $transcription.text(result);
+                console.log('Final result:', result); // Log the final result
+              } else if (error) {
+                $transcription.text(err);
+                window.console.log(err);
+              }
+              recognizer = undefined;
+              callback(result);
             }
-            $name_label.text(username + ":");
-            let recognizer = sttFactory.build();
-
-            recognizer.recognize(
-                (partialResult) => {
-                    setUI(username, partialResult);
-                },
-                (result, error) => {
-                    if (result) {
-                        $transcription.text(result);
-                    } else if (error) {
-                        $transcription.text(err);
-                        window.console.log(err);
-                    }
-                    recognizer = undefined;
-                    callback(result);
-                }
-            );
+          );
         });
-    });
+      });
+      
 
     model.on('hit', (hitAreaNames) => {
         onInteract(model, (callback) => {
