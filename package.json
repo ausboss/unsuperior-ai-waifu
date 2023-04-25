@@ -1,0 +1,26 @@
+{
+  "name": "unsuperior-ai-waifu",
+  "version": "1.0.0",
+  "description": "![Demo](doc/demo.gif)",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ausboss/unsuperior-ai-waifu.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ausboss/unsuperior-ai-waifu/issues"
+  },
+  "homepage": "https://github.com/ausboss/unsuperior-ai-waifu#readme",
+  "dependencies": {
+    "electron": "^24.1.2"
+  }
+}

@@ -1,0 +1,18 @@
+{
+    "model": "",
+    "username": "AusBoss",
+    "waifuname": "Tensor",
+    "prompt": "Your custom prompt here...",
+    "voice": "",
+    "openai": "",
+    "usaws": "",
+    "speech_key": "",
+    "speech_region": "",
+    "engine": "native",
+    "deaf": false,
+    "mute": false,
+    "tts-engine": "",
+    "sr-engine": "",
+    "stt_language": "en-US"
+  }
+  

@@ -3,8 +3,8 @@ import { APIAbuserAI, USAWServerAI } from "./ai.js";
 import { TextToSpeechSynthesizerFactory } from "./speech.js";
 import { SpeechToTextRecognizerFactory } from "./speechrecognizer.js";
 
-//const background_model_url = "https://cdn.jsdelivr.net/gh/Eikanya/Live2d-model/%E5%B0%91%E5%A5%B3%E5%89%8D%E7%BA%BF%20girls%20Frontline/live2dold/bg/cg1/model.json";
-const background_model_url = "https://cdn.jsdelivr.net/gh/Eikanya/Live2d-model/%E5%B0%91%E5%A5%B3%E5%89%8D%E7%BA%BF%20girls%20Frontline/live2dold/bg/cg7/model.json";
+// const background_model_url = "https://cdn.jsdelivr.net/gh/Eikanya/Live2d-model/%E5%B0%91%E5%A5%B3%E5%89%8D%E7%BA%BF%20girls%20Frontline/live2dold/bg/cg1/model.json";
+// const background_model_url = "https://cdn.jsdelivr.net/gh/Eikanya/Live2d-model/%E5%B0%91%E5%A5%B3%E5%89%8D%E7%BA%BF%20girls%20Frontline/live2dold/bg/cg7/model.json";
 /**
  * Siri sound. There is a delay between when you tap and when it starts transcripting. 
  * This sound helps make people wait for it to start transcripting.
@@ -27,65 +27,61 @@ function addError(text) {
     addMessage(text, "error");
     $("#start-button").prop("disabled", true);
 }
+const config = await fetch('config.json').then(response => response.json());
 
-const modelChoice = helpers.getURLParam("model");
+const modelChoice = config.model;
 const modelsRaw = await fetch('models.json');
 const modelsJSON = await modelsRaw.json();
-var modelData;
-if (modelChoice == null || modelChoice == "") {
-    modelData = structuredClone(modelsJSON[0]);
+let modelData;
+
+if (!modelChoice) {
+  modelData = { ...modelsJSON[0] };
 } else {
-    for (let m of modelsJSON) {
-        if (m["name"] == modelChoice) {
-            modelData = m;
-            break;
-        }
-    }
+  modelData = modelsJSON.find(m => m.name === modelChoice);
 }
-if (modelData == null) {
-    addError("ERROR: Unknown model " + modelChoice);
+
+if (!modelData) {
+  addError("ERROR: Unknown model " + modelChoice);
 }
 
 let models = {
-    model: await PIXI.live2d.Live2DModel.from(modelData["url"]),
-    background_model: await PIXI.live2d.Live2DModel.from(background_model_url)
-}
-let model = models["model"];
-let background_model = models["background_model"];
+  model: await PIXI.live2d.Live2DModel.from(modelData.url),
+//   background_model: await PIXI.live2d.Live2DModel.from(background_model_url)
+};
+
+let model = models.model;
+let background_model = models.background_model;
 
 
-const username = helpers.getURLParam("username") || "hackdaddy8000";
-const waifuName = helpers.getURLParam("waifuname") || "Goku 3";
-const promptBase = helpers.getURLParam("prompt")
-    || `You are a smug girl. You enjoy belittling people. 
-    You love pointing out how much smarter you are than everyone. 
-    You are currently hiding in your basement from the feds. 
-    The feds are after you due to various cyber crimes. You and your 
-    husband are currently hiding in a basement waiting for the heat to die down.`;
-const voice = helpers.getURLParam("voice");
 
-const openAIKey = helpers.getURLParam("openai");
-const usawServerURL = helpers.getURLParam("usaws");
-const AIPossible = openAIKey != null || usawServerURL != null;
-if (!AIPossible) {
-    addError("ERROR: No OpenAI API Key and no USAW server available. Either is required for her to think.");
-}
-if (openAIKey && usawServerURL) {
-    addWarning("WARNING: OpenAI API key and USAW server given. Defaulting to USAW");
-}
+const username = config.username || "hackdaddy8000";
+const waifuName = config.waifuname || "Goku 3";
+const promptBase = config.prompt || `Your default prompt here...`;
+const voice = config.voice;
 
-const subscriptionKey = helpers.getURLParam("speech_key");
-const serviceRegion = helpers.getURLParam("speech_region");
+const openAIKey = config.openai;
+const usawServerURL = config.usaws;
+const AIPossible = openAIKey || usawServerURL;
+// if (!AIPossible) {
+//     addError("ERROR: No OpenAI API Key and no USAW server available. Either is required for her to think.");
+// }
+// if (openAIKey && usawServerURL) {
+//     addWarning("WARNING: OpenAI API key and USAW server given. Defaulting to USAW");
+// }
 
-const engineOfChoice = helpers.getURLParam("engine") || "native";
+const subscriptionKey = config.speech_key;
+const serviceRegion = config.speech_region;
 
-const deaf = helpers.getURLParam("deaf") != null;
-const mute = helpers.getURLParam("mute") != null;
+const engineOfChoice = config.engine || "native";
+
+const deaf = config.deaf;
+const mute = config.mute;
+
 
 const AZURE_POSSIBLE = subscriptionKey != null && serviceRegion != null && !!window.SpeechSDK;
 const NATIVE_SPEECH_POSSIBLE = 'speechSynthesis' in window;
 const SPEECH_POSSIBLE = AZURE_POSSIBLE || NATIVE_SPEECH_POSSIBLE;
-var voiceEngine = helpers.getURLParam("tts-engine") || engineOfChoice;
+var voiceEngine = config["tts-engine"] || config["engine"] || "native";
 if (helpers.isMobile() && engineOfChoice == "native") {
     addWarning("WARNING: To my knowledge, native TTS and speech recognition does not work on mobile. Try to use Azure.");
 }
@@ -106,7 +102,7 @@ if (!SPEECH_POSSIBLE) {
 
 const NATIVE_SPEECH_RECOGNITION_POSSIBLE = "webkitSpeechRecognition" in window;
 const SPEECH_RECOGNITION_POSSIBLE = NATIVE_SPEECH_RECOGNITION_POSSIBLE || AZURE_POSSIBLE;
-var speechRecognitionEngine = helpers.getURLParam("sr-engine") || engineOfChoice;
+var speechRecognitionEngine = config["stt-engine"] || config["engine"] || "native";
 if (!SPEECH_RECOGNITION_POSSIBLE) {
     addWarning("WARNING: Speech recognition not available. She is switching to text input mode.");
     speechRecognitionEngine = "text";
@@ -118,21 +114,21 @@ if (!SPEECH_RECOGNITION_POSSIBLE) {
     speechRecognitionEngine = "text";
 }
 
-const sttAzureLang = helpers.getURLParam("stt_language") || "en-US";
+const sttAzureLang = config["stt-azure-lang"] || "en-US";
 if (voiceEngine != "azure" && sttAzureLang != "en-US") {
     addWarning("WARNING: Using different languages for speech-to-text is only available with the Azure engine. Defaulting to english.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-var ai;
-if (usawServerURL) {
-    ai = new USAWServerAI(usawServerURL);
-} else if (openAIKey) {
-    ai = new APIAbuserAI(openAIKey, promptBase);
-} else {
-    ai = new AI();
-}
+// var ai;
+// if (usawServerURL) {
+//     ai = new USAWServerAI(usawServerURL);
+// } else if (openAIKey) {
+//     ai = new APIAbuserAI(openAIKey, promptBase);
+// } else {
+//     ai = new AI();
+// }
 
 var ttsFactory;
 if (voiceEngine == "azure") {
@@ -208,7 +204,7 @@ function onInteract(model, getInteraction) {
         });
     }
 
-    interactionDisabled = true;
+    interactionDisabled = false;
     getInteraction(callback);
 }
 
@@ -222,18 +218,36 @@ function onInteract(model, getInteraction) {
     const app = new PIXI.Application({
         view: document.getElementById("canvas"),
         autoStart: true,
+        backgroundColor: 0x000000, 
+        transparent: true, //part 2 turns background transparent
         resizeTo: window
     });
 
-    app.stage.addChild(background_model);
+    // app.stage.addChild(background_model);
 
-    function resizeBackground() {
-        let scale = Math.max(window.innerHeight * .00048, window.innerWidth * .00027);
-        background_model.scale.set(scale);
-        background_model.x = -200;
-    }
-    resizeBackground();
-
+    // function resizeBackground() {
+    //     let scale = Math.max(window.innerHeight * .00048, window.innerWidth * .00027);
+    //     background_model.scale.set(scale);
+    //     background_model.x = -200;
+    // }
+    // resizeBackground();
+    function draggable(model) {
+        model.buttonMode = true;
+        model.on("pointerdown", (e) => {
+          model.dragging = true;
+          model._pointerX = e.data.global.x - model.x;
+          model._pointerY = e.data.global.y - model.y;
+        });
+        model.on("pointermove", (e) => {
+          if (model.dragging) {
+            model.position.x = e.data.global.x - model._pointerX;
+            model.position.y = e.data.global.y - model._pointerY;
+          }
+        });
+        model.on("pointerupoutside", () => (model.dragging = false));
+        model.on("pointerup", () => (model.dragging = false));
+      }
+    draggable(model);
     model.internalModel.motionManager.groups.idle = modelData["idleMotionGroupName"] ?? "Idle";
     app.stage.addChild(model);
 
@@ -246,7 +260,7 @@ function onInteract(model, getInteraction) {
     }
     resizeWaifu();
     onresize = (_) => {
-        resizeBackground();
+        // resizeBackground();
         resizeWaifu();
     };
 
