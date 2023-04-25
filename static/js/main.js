@@ -256,6 +256,16 @@ function onInteract(model, getInteraction) {
         model.on("pointerup", () => (model.dragging = false));
       }
     draggable(model);
+    canvas.addEventListener("wheel", (event) => {
+        event.preventDefault();
+    
+        // Set the scaling factor
+        const scaleFactor = event.deltaY > 0 ? 0.9 : 1.1;
+    
+        // Apply the scaling factor to the model
+        model.scale.x *= scaleFactor;
+        model.scale.y *= scaleFactor;
+    });
     model.internalModel.motionManager.groups.idle = modelData["idleMotionGroupName"] ?? "Idle";
     app.stage.addChild(model);
 
