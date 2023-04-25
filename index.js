@@ -1,19 +1,57 @@
 const { app, BrowserWindow } = require('electron')
+const electronReload = require('electron-reload');
 
+const pathToApp = __dirname;
+electronReload(pathToApp, {
+  electron: require(`${pathToApp}/node_modules/electron`)
+});
 
 function createWindow() {
   const win = new BrowserWindow({
     frame: false,
     fullscreen: false,
     transparent: true,
+    
     width: 700,
-    height: 700,
+    height: 1000,
     movable: true, // enable moving the window
     resizable: true, // disable resizing the window
+    hasShadow: false,
+
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      devTools: false
     }
   })
+
+const textbox = new BrowserWindow({
+  parent: win,
+  frame: false,
+  fullscreen: false,
+  transparent: true,
+  width: 700,
+  height: 100,
+  movable: true, // enable moving the window})
+  resizable: true, // disable resizing the window
+  hasShadow: false,
+  spellcheck: false,
+  webPreferences: {
+    nodeIntegration: true,
+    devTools: false
+  }})
+
+  textbox.loadURL(`file://${__dirname}/textbox.html`)
+  textbox.webContents.on('did-finish-load', () => {
+    const parentBounds = win.getBounds();
+    const childBounds = textbox.getBounds();
+    textbox.setBounds({
+        x: parentBounds.x + (parentBounds.width - childBounds.width) / 2,
+        y: parentBounds.y + parentBounds.height - childBounds.height,
+        width: childBounds.width,
+        height: childBounds.height
+    });
+});
+
 
   // Load the Live2D character on the window
   win.loadURL(`file://${__dirname}/index.html`)
@@ -23,10 +61,10 @@ function createWindow() {
   win.setMinimizable(false)
 
   // Open DevTools - remove this for production
- win.webContents.openDevTools()
+ // win.webContents.openDevTools()
 
   // Make the window draggable
-  let isDragging = false
+  let isDragging = true
   let mouseOffset = [0, 0]
 
 
