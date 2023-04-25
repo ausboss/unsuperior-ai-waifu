@@ -9,7 +9,7 @@ function createWindow() {
     width: 1500,
     height: 1500,
     movable: true, // enable moving the window
-    resizable: false, // disable resizing the window
+    resizable: true, // disable resizing the window
     webPreferences: {
       nodeIntegration: true
     }
@@ -19,6 +19,8 @@ function createWindow() {
   win.loadURL(`file://${__dirname}/index.html`)
   win.setIgnoreMouseEvents(false)
 
+  win.setAlwaysOnTop(true, 'screen');
+  
   // Open DevTools - remove this for production
   win.webContents.openDevTools()
 
