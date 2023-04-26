@@ -1,0 +1,37 @@
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependencies
+node_modules/
+node_modules/**/*
+
+# Build output
+out/
+dist/
+build/
+release/
+*.dmg
+*.exe
+*.msi
+*.rpm
+*.deb
+
+# Coverage
+coverage/
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
+char_data.json

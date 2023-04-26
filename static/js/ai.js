@@ -1,34 +1,42 @@
 import { DumbMemoryModule } from "./memory.js"
 
-function openAIAPICompletionReq(key, prompt, callback) {
+
+const config = await fetch('config.json').then(response => response.json());
+const endPoint = config.endpoint;
+const ENDPOINT = config.endpoint;
+
+function koboldAPICompletionReq(prompt, callback) {
     $.ajax({
-        url: 'https://api.openai.com/v1/completions',
-        type: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + key
-        },
-        data: JSON.stringify({
-            'model': 'text-davinci-003',
-            'prompt': prompt,
-            'temperature': 0.8,
-            'max_tokens': 70
-        }),
-        success: function (data) {
-            callback(data.choices[0].text, null);
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            console.error(XMLHttpRequest);
-            var err = `Error code ${XMLHttpRequest.status}.`;
-            if (XMLHttpRequest.status == 401) {
-                err += " It seems like your API key doesn't work. Was it entered correctly?"
-            } else if (XMLHttpRequest.status == 429) {
-                err += " You're talking to her too much. OpenAI doesn't like that. Slow down."
-            }
-            callback(null, err);
-        },
+      url: endPoint + "/api/v1/generate",
+      type: 'POST',
+      contentType: 'application/json', // Add content type
+      data: JSON.stringify({
+        'prompt': prompt,
+        'use_story': false,
+        'use_memory': false,
+        'use_authors_note': false,
+        'use_world_info': false,
+        'max_context_length': 1818,
+        'max_length': 150,
+        'rep_pen': 1.03,
+        'sampler_order': [6, 0, 1, 2, 3, 4, 5],
+      }),
+      success: function (response) { // Update the parameter name
+        callback(response.results[0].text, null);
+      },
+      error: function (XMLHttpRequest, textStatus, errorThrown) {
+        console.error(XMLHttpRequest);
+        var err = `Error code ${XMLHttpRequest.status}.`;
+        if (XMLHttpRequest.status == 401) {
+          err += " It seems like your API key doesn't work. Was it entered correctly?";
+        } else if (XMLHttpRequest.status == 429) {
+          err += " You're talking to her too much. OpenAI doesn't like that. Slow down.";
+        }
+        callback(null, err);
+      },
     });
-}
+  }
+  
 
 function emotionAnalysis(key, text, callback) {
     var prompt = `
@@ -88,60 +96,111 @@ class AI {
     }
 }
 
-class APIAbuserAI extends AI {
-    #openaiAPIKey;
-    #memory;
-    constructor(openAIAPIKey, promptBase) {
-        super();
-        this.#openaiAPIKey = openAIAPIKey;
-        this.#memory = new DumbMemoryModule(promptBase);
-    }
-    accept(userPrompt, callback) {
-        let APIKey = this.#openaiAPIKey;
-        var memory = this.#memory;
-        var fullTextGenerationPrompt = `${memory.buildPrompt()}\nMe: ${userPrompt}\nYou: `;
-        openAIAPICompletionReq(APIKey, fullTextGenerationPrompt,
-            function (response, err) {
-                if (err != null) {
-                    console.error(err);
-                    return;
-                }
-                memory.pushMemory(`Me: ${userPrompt}\nYou: ${response}`);
-                emotionAnalysis(APIKey, response, function (emotion) {
-                    callback({
-                        "response": response,
-                        "emotion": emotion
-                    });
-                });
-            }
-        );
-    }
-}
 
-class USAWServerAI extends AI {
-    #URL
-    constructor(USAWServerURL) {
-        super();
-        this.#URL = USAWServerURL;
+
+
+
+class Chatbot {
+    constructor(fn) {
+      this.loadJSON(fn).then((data) => {
+        this.data = data;
+        this.char_name = this.data["char_name"];
+        this.char_persona = this.data["char_persona"];
+        this.char_greeting = this.data["char_greeting"];
+        this.world_scenario = this.data["world_scenario"];
+        this.example_dialogue = this.data["example_dialogue"];
+  
+        this.endpoint = ENDPOINT;
+        this.conversation_history = `<START>\n${this.char_name}: ${this.char_greeting}\n`;
+        this.character_info = `${this.char_name}'s Persona: ${this.char_persona}\nScenario: ${this.world_scenario}\n<START>${this.example_dialogue}<START>${this.char_greeting}\n`;
+        this.num_lines_to_keep = 20;
+      });
     }
-    accept(userPrompt, callback) {
-        $.ajax({
-            url: this.#URL + "/api/waifu/1/event/conversation",
-            type: 'POST',
+  
+    async loadJSON(fn) {
+      const response = await fetch(fn);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    }
+  
+    async save_conversation_threaded(message, callback) {
+      const response_text = await this.save_conversation(message);
+      callback(response_text);
+    }
+  
+    async save_conversation(message) {
+      this.conversation_history += `You: ${message}\n`;
+      const prompt = {
+        prompt: this.character_info + '\n'.join(this.conversation_history.split('\n').slice(-this.num_lines_to_keep)) + `${this.char_name}:`,
+      };
+  
+      // Make a request to the API and handle errors
+      try {
+          const response = await fetch(`${this.endpoint}/api/v1/generate`, {
+            method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+              'Content-Type': 'application/json',
             },
-            data: JSON.stringify({
-                'prompt': userPrompt
-            }),
-            success: function (data) {
-                callback(data, null);
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                callback(null, "AAA");
-            },
-        });
+            body: JSON.stringify(prompt),
+          });
+      
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+      
+          const data = await response.json();
+          const results = data['results'];
+          const response_list = results[0]['text'].slice(1).split("\n").map(line => line);
+          const result = [response_list[0]].concat(response_list.slice(1).filter(item => item.includes(this.char_name)));
+          const response_text = result.map(item => item.replace(`${this.char_name}: `, '')).join('');
+          this.conversation_history += `${this.char_name}: ${response_text}\n`;
+          return response_text;
+        } catch (error) {
+          console.error(`Error: ${error}`);
+          return "";
+        }
     }
+  }
+  
+  export default Chatbot;
+
+
+
+class APIAbuserAI extends AI {
+  #openaiAPIKey;
+  #memory;
+  #chatbot;
+  constructor(openAIAPIKey, promptBase) {
+    super();
+    this.#openaiAPIKey = openAIAPIKey;
+    this.#memory = new DumbMemoryModule(promptBase);
+    this.#chatbot = new Chatbot("char_data.json");
+  }
+
+  accept(userPrompt, callback) {
+    let APIKey = this.#openaiAPIKey;
+    var memory = this.#memory;
+    var fullTextGenerationPrompt = `${memory.buildPrompt()}\nMe: ${userPrompt}\nYou: `;
+
+    this.#chatbot.save_conversation_threaded(fullTextGenerationPrompt, (response) => {
+      if (!response) {
+        console.error("Error generating response");
+        return;
+      }
+
+      memory.pushMemory(`Me: ${userPrompt}\nYou: ${response}`);
+      emotionAnalysis(APIKey, response, function (emotion) {
+        callback({
+          response: response,
+          emotion: emotion,
+        });
+      });
+    });
+  }
 }
 
-export { APIAbuserAI, USAWServerAI }
+
+
+export { APIAbuserAI, Chatbot, DumbMemoryModule, emotionAnalysis, AI}

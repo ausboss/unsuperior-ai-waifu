@@ -1,0 +1,20 @@
+{
+    "model": "player_unit_00003",
+    "username": "Name",
+    "waifuname": "Tensor",
+    "prompt": "Your custom prompt here...",
+    "voice": "",
+    "openai": "",
+    "usaws": "",
+    "speech_key": "",
+    "speech_region": "",
+    "engine": "",
+    "deaf": false,
+    "mute": false,
+    "tts-engine": "",
+    "sr-engine": "text",
+    "stt-engine": "text",
+    "stt_language": "",
+    "endpoint": "https://nashville-specifications-cause-worried.trycloudflare.com/"
+  }
+  
