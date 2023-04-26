@@ -24,6 +24,7 @@ function createWindow() {
     }
   })
 
+/*
 const textbox = new BrowserWindow({
   parent: win,
   frame: false,
@@ -51,6 +52,7 @@ const textbox = new BrowserWindow({
         height: childBounds.height
     });
 });
+*/
 
 
   // Load the Live2D character on the window
