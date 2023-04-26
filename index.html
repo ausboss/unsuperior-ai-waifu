@@ -35,10 +35,13 @@
             Tap to talk...
         </div>
     </div>-->
+    <div class="relative">
+    <div class="absolute opacity-0 hover:opacity-100 transition-opacity duration-500 ease-in-out">
         <div id="nametag" class="nametag">Name</div>
-        <div class="polkadot-background textbox ui-body transition-all transition-duration 10ms" id="transcription">
+        <div class="polkadot-background textbox ui-body" id="transcription">
             Tap to talk...
         </div>
+    </div>
     </div>
     <canvas id=canvas class='draggable'></canvas>    <div class="ui">
 
@@ -50,20 +53,5 @@
     <script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
     <script type="module" src="static/js/main.js"></script>
 </body>
-
-<style>
-    
-.hidden {
-visibility: hidden;
-}
-.hidden:hover {
-visibility: visible;
-transition: ease-in-out 0.5s;
-}
-
-.draggable {
-    
-}
-</style>
 
 </html>
